@@ -1,6 +1,8 @@
 package com.example.api.ProductService.product.command;
 
 import com.example.api.ProductService.product.event.ProductCreatedEvent;
+import com.example.api.core.command.ReserveProductCommand;
+import com.example.api.core.event.ProductReservedEvent;
 import lombok.NoArgsConstructor;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -46,6 +48,22 @@ public class ProductAggregate {
 //        }
     }
 
+    @CommandHandler
+    public void handle(ReserveProductCommand reserveProductCommand) {
+        if (quantity < reserveProductCommand.getQuantity()) {
+            throw new IllegalArgumentException("Insufficient number of items in stock");
+        }
+
+        ProductReservedEvent productReservedEvent = ProductReservedEvent.builder()
+                .orderId(reserveProductCommand.getOrderId())
+                .productId(reserveProductCommand.getProductId())
+                .quantity(reserveProductCommand.getQuantity())
+                .userId(reserveProductCommand.getUserId())
+                .build();
+
+        AggregateLifecycle.apply(productReservedEvent);
+    }
+
     @EventSourcingHandler
     public void on(ProductCreatedEvent productCreatedEvent) {
         // 3. Get the Event
@@ -53,5 +71,10 @@ public class ProductAggregate {
         this.price = productCreatedEvent.getPrice();
         this.title = productCreatedEvent.getTitle();
         this.quantity = productCreatedEvent.getQuantity();
+    }
+
+    @EventSourcingHandler
+    public void on(ProductReservedEvent productReservedEvent) {
+        this.quantity -= productReservedEvent.getQuantity();
     }
 }
