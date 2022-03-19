@@ -3,6 +3,7 @@ package com.example.api.OrderService;
 import com.example.api.OrderService.order.event.OrderCreatedEvent;
 import com.example.api.core.command.ProcessPaymentCommand;
 import com.example.api.core.command.ReserveProductCommand;
+import com.example.api.core.event.PaymentProcessedEvent;
 import com.example.api.core.event.ProductReservedEvent;
 import com.example.api.core.model.User;
 import com.example.api.core.query.FetchUserPaymentDetailsQuery;
@@ -99,5 +100,10 @@ public class OrderSaga {
             log.info("The ProcessPaymentCommand resulted in NULL. Initiating a compensating transaction");
             // Start compensating transaction
         }
+    }
+
+    @SagaEventHandler(associationProperty = "orderId")
+    public void handle(PaymentProcessedEvent paymentProcessedEvent) {
+
     }
 }
