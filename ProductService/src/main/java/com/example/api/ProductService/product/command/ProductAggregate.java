@@ -54,6 +54,7 @@ public class ProductAggregate {
             throw new IllegalArgumentException("Insufficient number of items in stock");
         }
 
+        // Publish ProductReservedEvent event
         ProductReservedEvent productReservedEvent = ProductReservedEvent.builder()
                 .orderId(reserveProductCommand.getOrderId())
                 .productId(reserveProductCommand.getProductId())

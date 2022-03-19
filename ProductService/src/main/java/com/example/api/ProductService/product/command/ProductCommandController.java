@@ -23,12 +23,12 @@ public class ProductCommandController {
     }
 
     @PostMapping
-    public String create(@Valid @RequestBody ProductDTO productDTO) {
+    public String create(@Valid @RequestBody CreateProductDTO createProductDTO) {
         CreateProductCommand createProductCommand = CreateProductCommand.builder()
                 .productId(UUID.randomUUID().toString())
-                .price(productDTO.getPrice())
-                .quantity(productDTO.getQuantity())
-                .title(productDTO.getTitle())
+                .price(createProductDTO.getPrice())
+                .quantity(createProductDTO.getQuantity())
+                .title(createProductDTO.getTitle())
                 .build();
 
         String result = commandGateway.sendAndWait(createProductCommand);;

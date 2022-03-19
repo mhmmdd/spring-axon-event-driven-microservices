@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 
 @Data
-public class ProductDTO {
+public class CreateProductDTO {
 
     @NotBlank(message = "Product title is required field")
     private String title;

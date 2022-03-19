@@ -33,7 +33,7 @@ public class ProductEventHandler {
 
 
     @EventHandler
-    public void on(ProductCreatedEvent event) throws Exception {
+    public void on(ProductCreatedEvent event) {
         // 4. Catch the Event
         Product product = new Product();
         BeanUtils.copyProperties(event, product);
