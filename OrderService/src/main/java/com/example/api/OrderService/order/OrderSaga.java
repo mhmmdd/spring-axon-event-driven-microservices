@@ -1,5 +1,7 @@
-package com.example.api.OrderService;
+package com.example.api.OrderService.order;
 
+import com.example.api.OrderService.order.command.ApproveOrderCommand;
+import com.example.api.OrderService.order.event.OrderApprovedEvent;
 import com.example.api.OrderService.order.event.OrderCreatedEvent;
 import com.example.api.core.command.ProcessPaymentCommand;
 import com.example.api.core.command.ReserveProductCommand;
@@ -11,7 +13,9 @@ import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
+import org.axonframework.modelling.saga.EndSaga;
 import org.axonframework.modelling.saga.SagaEventHandler;
+import org.axonframework.modelling.saga.SagaLifecycle;
 import org.axonframework.modelling.saga.StartSaga;
 import org.axonframework.queryhandling.QueryGateway;
 import org.axonframework.spring.stereotype.Saga;
@@ -104,6 +108,17 @@ public class OrderSaga {
 
     @SagaEventHandler(associationProperty = "orderId")
     public void handle(PaymentProcessedEvent paymentProcessedEvent) {
+        ApproveOrderCommand approveOrderCommand = ApproveOrderCommand.builder()
+                .orderId(paymentProcessedEvent.getOrderId())
+                .build();
 
+        commandGateway.send(approveOrderCommand);
+    }
+
+    @EndSaga
+    @SagaEventHandler(associationProperty = "orderId")
+    public void handle(OrderApprovedEvent orderApprovedEvent) {
+        log.info("Order is approved. Order Saga is complete for orderId: " + orderApprovedEvent.getOrderId());
+        // SagaLifecycle.end();
     }
 }

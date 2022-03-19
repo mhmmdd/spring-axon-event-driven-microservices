@@ -1,7 +1,9 @@
-package com.example.api.OrderService;
+package com.example.api.OrderService.order;
 
+import com.example.api.OrderService.order.command.ApproveOrderCommand;
 import com.example.api.OrderService.order.command.CreateOrderCommand;
 import com.example.api.OrderService.order.command.OrderStatusEnum;
+import com.example.api.OrderService.order.event.OrderApprovedEvent;
 import com.example.api.OrderService.order.event.OrderCreatedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -42,5 +44,20 @@ public class OrderAggregate {
         this.orderStatus = orderCreatedEvent.getOrderStatus();
     }
 
+    @CommandHandler
+    public void handle(ApproveOrderCommand approveOrderCommand) {
+        // Create and publish the OrderApprovedEvent
+
+        OrderApprovedEvent orderCreatedEvent = OrderApprovedEvent.builder()
+                .orderId(approveOrderCommand.getOrderId())
+                .build();
+
+        AggregateLifecycle.apply(orderCreatedEvent);
+    }
+
+    @EventSourcingHandler
+    public void on(OrderApprovedEvent orderApprovedEvent) {
+        this.orderStatus = orderApprovedEvent.getOrderStatus();
+    }
 
 }

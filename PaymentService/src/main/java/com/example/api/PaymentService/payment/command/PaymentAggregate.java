@@ -21,17 +21,17 @@ public class PaymentAggregate {
     @CommandHandler
     public PaymentAggregate(ProcessPaymentCommand processPaymentCommand){
 
-    	if(processPaymentCommand.getPaymentDetails() == null) {
-    		throw new IllegalArgumentException("Missing payment details");
-    	}
-    	
-    	if(processPaymentCommand.getOrderId() == null) {
-    		throw new IllegalArgumentException("Missing orderId");
-    	}
-    	
-    	if(processPaymentCommand.getPaymentId() == null) {
-    		throw new IllegalArgumentException("Missing paymentId");
-    	}
+        if (processPaymentCommand.getPaymentDetails() == null) {
+            throw new IllegalArgumentException("Missing payment details");
+        }
+
+        if (processPaymentCommand.getOrderId() == null) {
+            throw new IllegalArgumentException("Missing orderId");
+        }
+
+        if (processPaymentCommand.getPaymentId() == null) {
+            throw new IllegalArgumentException("Missing paymentId");
+        }
 	
         AggregateLifecycle.apply(new PaymentProcessedEvent(processPaymentCommand.getOrderId(),
                 processPaymentCommand.getPaymentId()));

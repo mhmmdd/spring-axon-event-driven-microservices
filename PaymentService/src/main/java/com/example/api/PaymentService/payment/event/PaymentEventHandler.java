@@ -26,6 +26,5 @@ public class PaymentEventHandler {
         BeanUtils.copyProperties(event, payment);
 
         paymentRepository.save(payment);
-
     }
 }
