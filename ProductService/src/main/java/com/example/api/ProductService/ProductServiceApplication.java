@@ -2,6 +2,7 @@ package com.example.api.ProductService;
 
 import com.example.api.ProductService.product.command.CreateProductCommandInterceptor;
 import com.example.api.ProductService.product.event.ProductServiceEventErrorHandler;
+import com.example.api.core.configuration.AxonConfig;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.config.EventProcessingConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
