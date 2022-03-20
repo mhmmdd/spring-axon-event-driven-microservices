@@ -5,6 +5,8 @@ import com.example.api.OrderService.order.command.CreateOrderCommand;
 import com.example.api.OrderService.order.command.OrderStatusEnum;
 import com.example.api.OrderService.order.event.OrderApprovedEvent;
 import com.example.api.OrderService.order.event.OrderCreatedEvent;
+import com.example.api.OrderService.order.command.RejectOrderCommand;
+import com.example.api.OrderService.order.event.OrderRejectedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -44,6 +46,11 @@ public class OrderAggregate {
         this.orderStatus = orderCreatedEvent.getOrderStatus();
     }
 
+
+    /**
+     * Approve
+     */
+
     @CommandHandler
     public void handle(ApproveOrderCommand approveOrderCommand) {
         // Create and publish the OrderApprovedEvent
@@ -58,6 +65,27 @@ public class OrderAggregate {
     @EventSourcingHandler
     public void on(OrderApprovedEvent orderApprovedEvent) {
         this.orderStatus = orderApprovedEvent.getOrderStatus();
+    }
+
+
+    /**
+     * Reject
+     */
+    @CommandHandler
+    public void handle(RejectOrderCommand rejectOrderCommand) {
+        // Create and publish the OrderApprovedEvent
+
+        OrderRejectedEvent orderRejectedEvent = OrderRejectedEvent.builder()
+                .orderId(rejectOrderCommand.getOrderId())
+                .reason(rejectOrderCommand.getReason())
+                .build();
+
+        AggregateLifecycle.apply(orderRejectedEvent);
+    }
+
+    @EventSourcingHandler
+    public void on(OrderRejectedEvent orderRejectedEvent) {
+        this.orderStatus = orderRejectedEvent.getOrderStatus();
     }
 
 }

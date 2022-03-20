@@ -2,6 +2,7 @@ package com.example.api.ProductService.product.event;
 
 import com.example.api.ProductService.product.Product;
 import com.example.api.ProductService.product.query.ProductRepository;
+import com.example.api.core.event.ProductReservationCancelledEvent;
 import com.example.api.core.event.ProductReservedEvent;
 import lombok.extern.log4j.Log4j2;
 import org.axonframework.config.ProcessingGroup;
@@ -52,10 +53,24 @@ public class ProductEventHandler {
     @EventHandler
     public void on(ProductReservedEvent productReservedEvent) {
         Product product = productRepository.findByProductId(productReservedEvent.getProductId());
+        log.debug("ProductReservedEvent: Current product quantity: " + product.getQuantity());
+
         product.setQuantity(product.getQuantity() - productReservedEvent.getQuantity());
         productRepository.save(product);
 
+        log.debug("ProductReservedEvent: New product quantity: " + product.getQuantity());
         log.info("ProductReservedEvent is called for productId: " + productReservedEvent.getProductId()
                 + " and orderId: " + productReservedEvent.getOrderId());
+    }
+
+    @EventHandler
+    public void on(ProductReservationCancelledEvent productReservationCancelledEvent) {
+        Product product = productRepository.findByProductId(productReservationCancelledEvent.getProductId());
+        log.debug("ProductReservedEvent: Current product quantity: " + product.getQuantity());
+
+        product.setQuantity(product.getQuantity() + productReservationCancelledEvent.getQuantity());
+        productRepository.save(product);
+
+        log.debug("ProductReservedEvent: New product quantity: " + product.getQuantity());
     }
 }

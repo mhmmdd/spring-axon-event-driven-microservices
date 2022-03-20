@@ -3,9 +3,13 @@ package com.example.api.OrderService.order;
 import com.example.api.OrderService.order.command.ApproveOrderCommand;
 import com.example.api.OrderService.order.event.OrderApprovedEvent;
 import com.example.api.OrderService.order.event.OrderCreatedEvent;
+import com.example.api.OrderService.order.command.RejectOrderCommand;
+import com.example.api.OrderService.order.event.OrderRejectedEvent;
+import com.example.api.core.command.CancelProductReservationCommand;
 import com.example.api.core.command.ProcessPaymentCommand;
 import com.example.api.core.command.ReserveProductCommand;
 import com.example.api.core.event.PaymentProcessedEvent;
+import com.example.api.core.event.ProductReservationCancelledEvent;
 import com.example.api.core.event.ProductReservedEvent;
 import com.example.api.core.model.User;
 import com.example.api.core.query.FetchUserPaymentDetailsQuery;
@@ -15,7 +19,6 @@ import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.modelling.saga.EndSaga;
 import org.axonframework.modelling.saga.SagaEventHandler;
-import org.axonframework.modelling.saga.SagaLifecycle;
 import org.axonframework.modelling.saga.StartSaga;
 import org.axonframework.queryhandling.QueryGateway;
 import org.axonframework.spring.stereotype.Saga;
@@ -78,11 +81,13 @@ public class OrderSaga {
         } catch (Exception ex) {
             log.error(ex.getMessage());
             // Start compensating transaction
+            cancelProductReservation(productReservedEvent, ex.getMessage());
             return;
         }
 
         if (user == null) {
             // Start compensating transaction
+            cancelProductReservation(productReservedEvent, "Could not fetch user payment details");
             return;
         }
 
@@ -99,10 +104,13 @@ public class OrderSaga {
             result = commandGateway.sendAndWait(processPaymentCommand, 10, TimeUnit.SECONDS);
         } catch (Exception ex) {
             log.error(ex.getMessage());
+            cancelProductReservation(productReservedEvent, ex.getMessage());
+            return;
         }
-        if(result == null) {
+        if (result == null) {
             log.info("The ProcessPaymentCommand resulted in NULL. Initiating a compensating transaction");
             // Start compensating transaction
+            cancelProductReservation(productReservedEvent, "Could not process user payment with provided payment details");
         }
     }
 
@@ -120,5 +128,35 @@ public class OrderSaga {
     public void handle(OrderApprovedEvent orderApprovedEvent) {
         log.info("Order is approved. Order Saga is complete for orderId: " + orderApprovedEvent.getOrderId());
         // SagaLifecycle.end();
+    }
+
+
+    /**
+     * Cancel Payment
+     */
+    @SagaEventHandler(associationProperty = "orderId")
+    public void handle(ProductReservationCancelledEvent productReservationCancelledEvent) {
+        RejectOrderCommand rejectOrderCommand = RejectOrderCommand.builder()
+                .orderId(productReservationCancelledEvent.getOrderId())
+                .reason(productReservationCancelledEvent.getReason())
+                .build();
+        commandGateway.send(rejectOrderCommand);
+    }
+
+    @EndSaga
+    @SagaEventHandler(associationProperty = "orderId")
+    public void handle(OrderRejectedEvent orderRejectedEvent) {
+        log.info("Successfully rejected order with id: " + orderRejectedEvent.getOrderId());
+    }
+
+    private void cancelProductReservation(ProductReservedEvent productReservedEvent, String reason) {
+        CancelProductReservationCommand cancelProductReservationCommand = CancelProductReservationCommand.builder()
+                .orderId(productReservedEvent.getOrderId())
+                .productId(productReservedEvent.getProductId())
+                .quantity(productReservedEvent.getQuantity())
+                .userId(productReservedEvent.getUserId())
+                .reason(reason)
+                .build();
+        commandGateway.send(cancelProductReservationCommand);
     }
 }
