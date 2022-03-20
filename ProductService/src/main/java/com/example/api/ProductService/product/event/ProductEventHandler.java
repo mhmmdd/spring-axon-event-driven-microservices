@@ -7,6 +7,7 @@ import com.example.api.core.event.ProductReservedEvent;
 import lombok.extern.log4j.Log4j2;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.eventhandling.ResetHandler;
 import org.axonframework.messaging.interceptors.ExceptionHandler;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ public class ProductEventHandler {
 
     }
 
-    @ExceptionHandler(resultType = Exception.class)
+    @ExceptionHandler
     public void handle(Exception exception) throws Exception {
         throw exception;
     }
@@ -72,5 +73,10 @@ public class ProductEventHandler {
         productRepository.save(product);
 
         log.debug("ProductReservedEvent: New product quantity: " + product.getQuantity());
+    }
+
+    @ResetHandler
+    public void reset() {
+        productRepository.deleteAll();
     }
 }

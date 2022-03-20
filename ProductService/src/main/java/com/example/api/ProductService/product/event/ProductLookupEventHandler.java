@@ -4,6 +4,7 @@ import com.example.api.ProductService.product.ProductLookup;
 import com.example.api.ProductService.product.ProductLookupRepository;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.eventhandling.ResetHandler;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,5 +21,10 @@ public class ProductLookupEventHandler {
         // 5. Catch the Event
         ProductLookup productLookup = new ProductLookup(event.getProductId(), event.getTitle());
         productLookupRepository.save(productLookup);
+    }
+
+    @ResetHandler
+    public void reset() {
+        productLookupRepository.deleteAll();
     }
 }

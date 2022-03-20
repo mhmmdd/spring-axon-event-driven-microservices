@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"iPhone 13\",\r\n    \"price\": 200,\r\n    \"quantity\": 2\r\n}",
+							"raw": "{\r\n    \"title\": \"iPhone 13 Pro\",\r\n    \"price\": 200,\r\n    \"quantity\": 5\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -54,6 +54,28 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Replay Events",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:8082/product-service/management/eventProcessor/product-group/reset",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"product-service",
+								"management",
+								"eventProcessor",
+								"product-group",
+								"reset"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -67,7 +89,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"productId\": \"461f4801-848b-46ed-8c0a-c03db9c0eb30\",\r\n    \"quantity\": 3,\r\n    \"addressId\": \"6716b248-a883-4390-9bf3-b497e45d1464\"\r\n}",
+							"raw": "{\r\n    \"productId\": \"8d057b41-9822-40f7-8d8d-2ae80d20b54c\",\r\n    \"quantity\": 1,\r\n    \"addressId\": \"6716b248-a883-4390-9bf3-b497e45d1464\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
